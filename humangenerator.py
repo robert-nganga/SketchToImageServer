@@ -16,35 +16,35 @@ import os
 application = Flask(__name__)
 api = Api(application)
 
-# # Dropbox direct download URL
-# url = "https://www.dropbox.com/s/yp80qcyyyq0j9ns/fully_trained.h5?dl=1"
+# Dropbox direct download URL
+url = "https://www.dropbox.com/s/yp80qcyyyq0j9ns/fully_trained.h5?dl=1"
 
-# # Destination file name
-# destination_file = "fully_trained.h5"
+# Destination file name
+destination_file = "fully_trained.h5"
 
-# # Check if the destination file already exists
-# if os.path.exists(destination_file):
-#     # Get the file size of the existing file
-#     existing_file_size = os.path.getsize(destination_file)
-# else:
-#     existing_file_size = 0
+# Check if the destination file already exists
+if os.path.exists(destination_file):
+    # Get the file size of the existing file
+    existing_file_size = os.path.getsize(destination_file)
+else:
+    existing_file_size = 0
 
-# # Send a GET request to the URL with a 'Range' header to resume the download
-# headers = {'Range': f'bytes={existing_file_size}-'}
+# Send a GET request to the URL with a 'Range' header to resume the download
+headers = {'Range': f'bytes={existing_file_size}-'}
 
-# response = requests.get(url, headers=headers, stream=True)
+response = requests.get(url, headers=headers, stream=True)
 
-# if response.status_code == 206:
-#     total_size = int(response.headers.get("content-length", existing_file_size))
-#     progress_bar = tqdm(total=total_size, initial=existing_file_size, unit="B", unit_scale=True)
-#     with open(destination_file, 'ab') as f:
-#         for chunk in response.iter_content(8192):
-#             f.write(chunk)
-#             progress_bar.update(len(chunk))
-#     progress_bar.close()
-#     print(f"Resumed download of {destination_file} successfully!")
-# else:
-#     print(f"Failed to resume the download. Status code: {response.status_code}")
+if response.status_code == 206:
+    total_size = int(response.headers.get("content-length", existing_file_size))
+    progress_bar = tqdm(total=total_size, initial=existing_file_size, unit="B", unit_scale=True)
+    with open(destination_file, 'ab') as f:
+        for chunk in response.iter_content(8192):
+            f.write(chunk)
+            progress_bar.update(len(chunk))
+    progress_bar.close()
+    print(f"Resumed download of {destination_file} successfully!")
+else:
+    print(f"Failed to resume the download. Status code: {response.status_code}")
 
 #BASE_DIR = Path(__file__).resolve(strict=True).parent
 model = load_model('fully_trained.h5')
@@ -100,4 +100,4 @@ class Predict(Resource):
 api.add_resource(Predict, '/predict')
 
 if __name__ == '__main__':
-    application.run(debug=True)
+    application.run(debug=True, host='0.0.0.0', port=8080)
